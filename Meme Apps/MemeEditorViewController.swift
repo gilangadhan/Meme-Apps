@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class MemeEditorViewController: UIViewController {
 
   @IBOutlet weak var cameraButton: UIBarButtonItem!
   @IBOutlet weak var imagePickerView: UIImageView!
@@ -79,12 +79,11 @@ class ViewController: UIViewController {
     textField.defaultTextAttributes = memeTextAttributes
     textField.text = defaultText
     textField.textAlignment = .center
-    textField.delegate = self
   }
 }
 
 // MARK: Extend UIImagePickerControllerDelegate and UINavigationControllerDelegate to ViewController
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
   // MARK: Closes gallery if cancel.
   func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -142,7 +141,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
 }
 
 // MARK: Extend UITextFieldDelegate to ViewController
-extension ViewController: UITextFieldDelegate {
+extension MemeEditorViewController: UITextFieldDelegate {
 
   // MARK: Delete text field text when edited.
   func textFieldDidBeginEditing(_ textField: UITextField) {
