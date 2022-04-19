@@ -30,9 +30,11 @@ class MemeEditorViewController: UIViewController {
     unSubscribeToKeyboardNotifications()
   }
 
+  // MARK: Go To Previous View Controller
   @IBAction func goBack(_ sender: Any) {
     navigationController?.popViewController(animated: true)
   }
+
   // MARK: Get pictures from photo library or camera.
   @IBAction func pickAnImage(_ sender: UIButton) {
     let imagePicker = UIImagePickerController()
@@ -119,8 +121,12 @@ extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigatio
         memedImage: generateMemedImage()
       )
 
-      guard let sceneDelegate = UIApplication.shared.delegate as? SceneDelegate else { return }
-      sceneDelegate.memes.append(meme)
+      guard let appDelagate = UIApplication.shared.delegate as? AppDelegate else { return }
+      appDelagate.memes.append(meme)
+
+      navigationController?.popViewController(animated: true)
+    } else {
+      print("Faile to save")
     }
   }
 

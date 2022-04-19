@@ -13,12 +13,16 @@ class MemesTableViewController: UIViewController {
 
   // MARK: Properties
   var memes: [Meme] {
-    if let sceneDeleage = UIApplication.shared.delegate as? SceneDelegate {
-      return sceneDeleage.memes
+    if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+      return appDelegate.memes
     } else {
       return [Meme]()
     }
   }
+
+  // MARK: IBOutlet
+  @IBOutlet weak var tableView: UITableView!
+  @IBOutlet weak var emptyScreen: UIView!
 
   // MARK: IBAction
   @IBAction func moveToEditorMeme(_ sender: Any) {
@@ -27,6 +31,18 @@ class MemesTableViewController: UIViewController {
     ) as? MemeEditorViewController else { return }
 
     self.navigationController?.pushViewController(editorController, animated: true)
+  }
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if memes.isEmpty {
+      emptyScreen.isHidden = false
+      tableView.isHidden = true
+    } else {
+      emptyScreen.isHidden = true
+      tableView.isHidden = false
+      tableView?.reloadData()
+    }
   }
 }
 
@@ -40,8 +56,12 @@ extension MemesTableViewController: UITableViewDataSource {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: "MemeCell") else { return UITableViewCell() }
     let meme = self.memes[(indexPath as NSIndexPath).row]
 
-    cell.textLabel?.text = "\(String(describing: meme.topText)) ... \(String(describing: meme.bottomText))"
+    cell.textLabel?.text = "\(meme.topText ?? "TOP")"
     cell.imageView?.image = meme.memedImage
+
+    if let detailTextLabel = cell.detailTextLabel {
+        detailTextLabel.text = "\(meme.bottomText ?? "BOTTOM")"
+    }
     return cell
   }
 }

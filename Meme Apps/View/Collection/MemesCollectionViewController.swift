@@ -9,12 +9,12 @@ import Foundation
 import UIKit
 
 // MARK: - MemesCollectionViewController: UICollectionViewController
-class MemesCollectionViewController: UICollectionViewController {
+class MemesCollectionViewController: UIViewController {
 
   // MARK: Properties
   var memes: [Meme] {
-    if let sceneDeleage = UIApplication.shared.delegate as? SceneDelegate {
-      return sceneDeleage.memes
+    if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+      return appDelegate.memes
     } else {
       return [Meme]()
     }
@@ -22,6 +22,8 @@ class MemesCollectionViewController: UICollectionViewController {
 
   // MARK: IBOutlet
   @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+  @IBOutlet var emptyScreen: UIView!
+  @IBOutlet weak var collectionView: UICollectionView!
 
   // MARK: Life Cycle
   override func viewDidLoad() {
@@ -35,8 +37,30 @@ class MemesCollectionViewController: UICollectionViewController {
     flowLayout.itemSize = CGSize(width: dimension, height: dimension)
   }
 
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if memes.isEmpty {
+      collectionView.isHidden = true
+      emptyScreen.isHidden = false
+    } else {
+      emptyScreen.isHidden = true
+      collectionView.isHidden = false
+      collectionView.reloadData()
+    }
+  }
+
+  // MARK: IBACtion
+  @IBAction func moveToEditorMeme(_ sender: Any) {
+    guard let editorController = self.storyboard?.instantiateViewController(
+      withIdentifier: "MemeEditorViewController"
+    ) as? MemeEditorViewController else { return }
+    self.navigationController?.pushViewController(editorController, animated: true)
+  }
+}
+
+extension MemesCollectionViewController: UICollectionViewDataSource {
   // MARK: Collection View Data Source
-  override func collectionView(
+  func collectionView(
     _ collectionView: UICollectionView,
     numberOfItemsInSection section: Int
   ) -> Int {
@@ -44,7 +68,7 @@ class MemesCollectionViewController: UICollectionViewController {
   }
 
   // MARK: Collection ViewCell
-  override func collectionView(
+  func collectionView(
     _ collectionView: UICollectionView,
     cellForItemAt indexPath: IndexPath
   ) -> UICollectionViewCell {
@@ -59,9 +83,12 @@ class MemesCollectionViewController: UICollectionViewController {
 
     return cell
   }
+}
+
+extension MemesCollectionViewController: UICollectionViewDelegate {
 
   // MARK: Collection View Delegate
-  override func collectionView(
+  func collectionView(
     _ collectionView: UICollectionView,
     didSelectItemAt indexPath: IndexPath
   ) {
@@ -71,14 +98,5 @@ class MemesCollectionViewController: UICollectionViewController {
 
     detailController.meme = self.memes[(indexPath as NSIndexPath).row]
     self.navigationController!.pushViewController(detailController, animated: true)
-
-  }
-
-  // MARK: IBACtion
-  @IBAction func moveToEditorMeme(_ sender: Any) {
-    guard let editorController = self.storyboard?.instantiateViewController(
-      withIdentifier: "MemeEditorViewController"
-    ) as? MemeEditorViewController else { return }
-    self.navigationController?.pushViewController(editorController, animated: true)
   }
 }
