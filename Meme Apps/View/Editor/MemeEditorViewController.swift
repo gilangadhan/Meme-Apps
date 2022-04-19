@@ -14,10 +14,6 @@ class MemeEditorViewController: UIViewController {
   @IBOutlet weak var topTextField: UITextField!
   @IBOutlet weak var bottomTextField: UITextField!
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  }
-
   // MARK: Subscribe keyboard notification, call the setTextField, and make sure that the camera feature is available.
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
@@ -34,6 +30,9 @@ class MemeEditorViewController: UIViewController {
     unSubscribeToKeyboardNotifications()
   }
 
+  @IBAction func goBack(_ sender: Any) {
+    navigationController?.popViewController(animated: true)
+  }
   // MARK: Get pictures from photo library or camera.
   @IBAction func pickAnImage(_ sender: UIButton) {
     let imagePicker = UIImagePickerController()
@@ -62,7 +61,7 @@ class MemeEditorViewController: UIViewController {
 
   // MARK: Delete image and rearrange text in textfield.
   @IBAction func removePicture(_ sender: Any) {
-    imagePickerView.image = nil
+    imagePickerView.image = UIImage(named: "PlaceHolder")
     topTextField.text = "TOP"
     bottomTextField.text = "BOTTOM"
   }
@@ -113,27 +112,30 @@ extension MemeEditorViewController: UIImagePickerControllerDelegate, UINavigatio
   // MARK: Saves the image after the user has finished creating the meme.
   func save() {
     if imagePickerView.image != nil && topTextField.text != nil && bottomTextField.text != nil {
-      _ = Meme(
+      let meme = Meme(
         topText: topTextField.text,
         bottomText: bottomTextField.text,
         originalImage: imagePickerView.image,
         memedImage: generateMemedImage()
       )
+
+      guard let sceneDelegate = UIApplication.shared.delegate as? SceneDelegate else { return }
+      sceneDelegate.memes.append(meme)
     }
   }
 
   // MARK: Generate ready-made meme images along with their text.
   func generateMemedImage() -> UIImage {
-    self.navigationController?.isToolbarHidden = true
-    self.navigationController?.isNavigationBarHidden = true
+    navigationController?.isToolbarHidden = true
+    navigationController?.isNavigationBarHidden = true
 
     UIGraphicsBeginImageContext(self.view.frame.size)
     view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
     let memedImage: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
     UIGraphicsEndImageContext()
 
-    self.navigationController?.isToolbarHidden = false
-    self.navigationController?.isNavigationBarHidden = false
+    navigationController?.isToolbarHidden = false
+    navigationController?.isNavigationBarHidden = false
 
     return memedImage
   }
@@ -199,19 +201,9 @@ extension MemeEditorViewController: UITextFieldDelegate {
     )
   }
 
-  // MARK: Create a function to unscribe the movement of the keyboard.
+  // MARK: Create a function to remove all the observers.
   func unSubscribeToKeyboardNotifications() {
-    NotificationCenter.default.removeObserver(
-      self,
-      name: UIResponder.keyboardWillShowNotification,
-      object: nil
-    )
-
-    NotificationCenter.default.removeObserver(
-      self,
-      name: UIResponder.keyboardWillHideNotification,
-      object: nil
-    )
+    NotificationCenter.default.removeObserver(self)
   }
 
 }
